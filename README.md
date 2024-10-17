@@ -38,12 +38,15 @@ Credit App is a web application designed to streamline the process of applying f
    ```bash
    cd loan-manager-frontend
 
-```npm install```
+```bash
+npm install
 ```npm start```
 ```cd loan-manager-backend```
 ```npm install```
+
 Create a .env file in root directory of frontend and backend
-```ts-node src/server.ts```
+```bash
+ts-node src/server.ts
 
 Usage
 Access the frontend application in your browser at http://localhost:3000.
