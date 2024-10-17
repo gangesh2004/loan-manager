@@ -1,15 +1,10 @@
-import React, { useState, useEffect } from 'react';
+// ApplyLoan.tsx
+
+import React, { useState } from 'react';
 import axios from 'axios';
 
-interface Loan {
-  _id: string;
-  loanAmount: number;
-  tenure: number;
-  status: string;
-}
-
-const Dashboard: React.FC = () => {
-  const [loans, setLoans] = useState<Loan[]>([]);
+const ApplyLoan: React.FC = () => {
+  // State to hold form data
   const [formData, setFormData] = useState({
     loanAmount: '',
     tenure: '',
@@ -17,20 +12,11 @@ const Dashboard: React.FC = () => {
     reason: ''
   });
 
-  // Fetch loans when component mounts
-  useEffect(() => {
-    fetchLoans();
-  }, []);
+  // State for handling success and error messages
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const fetchLoans = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/loans`);
-      setLoans(response.data);
-    } catch (error) {
-      console.error('Error fetching loans:', error);
-    }
-  };
-
+  // Function to handle form data changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
@@ -38,19 +24,36 @@ const Dashboard: React.FC = () => {
     });
   };
 
+  // Function to handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Send data to the backend
       await axios.post(`${process.env.REACT_APP_API_URL}/loans`, formData);
-      fetchLoans(); // Refresh the loan list after submission
+
+      // On success, reset form and show success message
+      setFormData({
+        loanAmount: '',
+        tenure: '',
+        employmentStatus: '',
+        reason: ''
+      });
+      setSuccessMessage('Loan application submitted successfully.');
+      setErrorMessage(null);
     } catch (error) {
-      console.error('Error applying for loan:', error);
+      // Show error message if request fails
+      setErrorMessage('Failed to submit loan application. Please try again.');
+      setSuccessMessage(null);
     }
   };
 
   return (
-    <div className="dashboard-container">
-      <h2>Loan Application</h2>
+    <div className="apply-loan-container">
+      <h2>Apply for a Loan</h2>
+      
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+      
       <form onSubmit={handleSubmit} className="loan-application-form">
         <div className="form-group">
           <label htmlFor="loanAmount">Loan Amount</label>
@@ -104,36 +107,10 @@ const Dashboard: React.FC = () => {
           />
         </div>
 
-        <button type="submit" className="btn-submit">Apply for Loan</button>
+        <button type="submit" className="btn-submit">Submit Loan Application</button>
       </form>
-
-      <h2>Your Loan Applications</h2>
-      <div className="loan-tracker">
-        {loans.length === 0 ? (
-          <p>No loans found. Apply for a loan!</p>
-        ) : (
-          <table className="loan-table">
-            <thead>
-              <tr>
-                <th>Loan Amount</th>
-                <th>Tenure</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loans.map((loan) => (
-                <tr key={loan._id}>
-                  <td>{loan.loanAmount}</td>
-                  <td>{loan.tenure} months</td>
-                  <td>{loan.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default ApplyLoan;
